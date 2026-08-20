@@ -181,6 +181,27 @@ describe('mire appearance', () => {
     expect(mireAppearance(0.25).crisp).toBe(false);
   });
 
+  it('ramps in proportion to the error, so a quarter dioptre is half of a half', () => {
+    // The step from crisp to a quarter dioptre used to be a cliff. A quarter
+    // now spreads exactly half as far as a half does, and a half looks the way
+    // a quarter used to.
+    const quarter = mireAppearance(0.25);
+    const half = mireAppearance(0.5);
+    expect(quarter.width - 2).toBeCloseTo((half.width - 2) / 2, 10);
+    expect(half.width).toBeCloseTo(4.27, 2);
+    expect(quarter.width).toBeCloseTo(3.14, 2);
+    expect(half.filter).toBe('blur(1.14px)');
+    expect(quarter.filter).toBe('blur(0.57px)');
+  });
+
+  it('holds that proportion at any error, not just around focus', () => {
+    for (const error of [0.25, 0.5, 1, 2, 4]) {
+      const single = mireAppearance(error);
+      const double = mireAppearance(error * 2);
+      expect(single.width - 2).toBeCloseTo((double.width - 2) / 2, 10);
+    }
+  });
+
   it('spreads wider and dimmer as the error grows', () => {
     const near = mireAppearance(0.25);
     const far = mireAppearance(3);

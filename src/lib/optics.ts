@@ -206,16 +206,26 @@ export interface MireAppearance {
 const CRISP_EPSILON = 0.001;
 
 /**
+ * How far the mires spread per dioptre of error.
+ *
+ * The spread is proportional to the error, which is how a blur circle actually
+ * behaves - its diameter grows with the defocus, not with some power of it.
+ * The slope is set so that half a dioptre out looks the way a quarter of a
+ * dioptre used to under the old steepened curve. That halves the jump from
+ * crisp to the first quarter-dioptre step, which was a cliff rather than the
+ * gradient a student needs in order to tell how far off they still are.
+ */
+const SPREAD_PER_DIOPTRE = 0.758;
+
+/**
  * Map a dioptric error onto how a real mire looks: an out-of-focus line does
  * not simply go fuzzy in place, it spreads into a wide soft band of light that
- * dims as the same energy covers more area. The 0.7 exponent steepens the
- * response near focus so even a quarter dioptre is visibly soft and exact
- * focus snaps in by comparison.
+ * dims as the same energy covers more area.
  */
 export function mireAppearance(dioptricError: number): MireAppearance {
   const error = Math.min(Math.abs(dioptricError), 10);
   const crisp = error < CRISP_EPSILON;
-  const response = error ** 0.7;
+  const response = error * SPREAD_PER_DIOPTRE;
   return {
     width: 2 + response * 6,
     filter: crisp ? 'none' : `blur(${(response * 3).toFixed(2)}px)`,

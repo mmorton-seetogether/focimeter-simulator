@@ -69,8 +69,10 @@ ease off over the last few degrees rather than snapping.
 
 **Defocus that looks like defocus.** An out-of-focus mire does not go fuzzy in place — it spreads
 into a wide, soft band of light that dims as the same energy covers more area. So the dioptric
-error drives stroke width, blur radius and opacity together, with a 0.7 exponent that makes even a
-quarter dioptre visibly soft so exact focus snaps in by comparison.
+error drives stroke width, blur radius and opacity together, in proportion to the error, which is
+how a blur circle really grows. That keeps the ramp out of focus even: a quarter dioptre spreads
+half as far as a half dioptre, so there is a readable gradient near focus rather than a cliff
+between crisp and soft.
 
 All of it is pure functions with no DOM, and all of it is unit tested — including the property that
 a misaligned cylinder can never be brought sharp at *any* drum setting.
