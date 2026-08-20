@@ -2,6 +2,20 @@ import { normaliseAxis } from '../lib/optics.ts';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+/** Radius of the engraved rim, in the SVG's own units. */
+const WHEEL_RADIUS = 100;
+
+/**
+ * The window onto the wheel is the strip of the viewBox from y -110 to -70,
+ * so the rim runs out of the picture where the circle crosses that bottom
+ * edge - which is as far from centre as anyone can click on the wheel.
+ */
+const VISIBLE_HALF_WIDTH = Math.sqrt(WHEEL_RADIUS ** 2 - 70 ** 2);
+
+/** The three click zones split that reach into thirds. */
+const MIDDLE_ZONE = VISIBLE_HALF_WIDTH / 3;
+const OUTER_ZONE = (VISIBLE_HALF_WIDTH * 2) / 3;
+
 export interface AxisChangeDetail {
   axis: number;
 }
@@ -105,24 +119,38 @@ export class AxisWheel extends HTMLElement {
 
   /* ----------------------------- input ----------------------------- */
 
-  /** Left of centre adds degrees, right subtracts; the rim is the coarse zone. */
+  /** A click's position in the wheel's own coordinates, centre at zero. */
+  #userX(clientX: number): number | null {
+    const svg = this.#svg;
+    const matrix = svg?.getScreenCTM();
+    if (!svg || !matrix) return null;
+    return new DOMPoint(clientX, 0).matrixTransform(matrix.inverse()).x;
+  }
+
+  /**
+   * Left of centre winds the axis up, right winds it down, and the further
+   * out the bigger the step: 1, 5 then 10 degrees.
+   *
+   * Measured in the wheel's coordinates rather than across the element box.
+   * The box is 220 units wide but the window onto the wheel only shows the
+   * top strip, so the rim reaches no further than {@link VISIBLE_HALF_WIDTH}
+   * either side of centre - splitting the box into thirds put the whole
+   * 10 degree zone past the edge of the wheel, where nobody would click, and
+   * the outermost click anyone could actually make only moved 5.
+   */
   #zoneStep(clientX: number): number {
-    const rect = this.#svg?.getBoundingClientRect();
-    if (!rect || rect.width === 0) return 0;
-    const fraction = Math.min(Math.max((clientX - rect.left) / (rect.width / 2), 0), 2);
-    if (fraction < 1 / 3) return 10;
-    if (fraction < 2 / 3) return 5;
-    if (fraction < 1) return 1;
-    if (fraction < 4 / 3) return -1;
-    if (fraction < 5 / 3) return -5;
-    return -10;
+    const x = this.#userX(clientX);
+    if (x === null) return 0;
+    const distance = Math.abs(x);
+    const size = distance >= OUTER_ZONE ? 10 : distance >= MIDDLE_ZONE ? 5 : 1;
+    return x <= 0 ? size : -size;
   }
 
   /** Degrees per screen pixel, taken from the wheel radius as drawn. */
   #degreesPerPixel(): number {
     const matrix = this.#svg?.getScreenCTM();
     if (!matrix || matrix.a === 0) return 0;
-    const radiusInPixels = 100 * matrix.a;
+    const radiusInPixels = WHEEL_RADIUS * matrix.a;
     return radiusInPixels === 0 ? 0 : 180 / (Math.PI * radiusInPixels);
   }
 

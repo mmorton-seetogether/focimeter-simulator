@@ -7,5 +7,4 @@ dist-ssr
 *.log
 coverage
 .vite
-public/icons/*.png
 public/og-image.png

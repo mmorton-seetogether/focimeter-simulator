@@ -45,7 +45,7 @@ Every control takes a mouse, a finger and a keyboard.
 | Control | Pointer | Keyboard |
 | --- | --- | --- |
 | Power drum | Drag vertically, scroll, or click a zone: outer 1.00 D, inner 0.25 D | `↑` `↓` step 0.25 D, `Shift` 1.00 D, `PageUp`/`PageDown` 1.00 D, `Home` zero |
-| Axis wheel | Drag sideways, scroll, or click a zone: outer 10°, middle 5°, inner 1° | `←` `→` step 1°, `Shift` 10°, `Home` 180 |
+| Axis wheel | Drag sideways, scroll, or click a zone on the rim: outer 10°, middle 5°, inner 1° | `←` `→` step 1°, `Shift` 10°, `Home` 180 |
 | Anywhere | — | `N` next lens, `Enter` mark reading, `?` help |
 
 ---
@@ -127,11 +127,12 @@ npm run dev
 | `npm test` | Run the unit tests once |
 | `npm run test:watch` | Run the tests in watch mode |
 | `npm run typecheck` | Typecheck without building |
-| `npm run icons` | Redraw the PWA icons and social card |
+| `npm run og-image` | Redraw the social card |
 | `npm run screenshot -- <url> <out.png> [js]` | Capture the running app with headless Chrome, for visual checks |
 
-The icons are generated, not committed — `scripts/generate-icons.mjs` rasterises them with a small
-PNG encoder built on Node's own zlib, and runs automatically before `dev` and `build`.
+The favicon and app icons are the SEE Together brand marks, committed under `public/`. Only the
+social card is generated — `scripts/generate-og-image.mjs` rasterises it with a small PNG encoder
+built on Node's own zlib, and runs automatically before `dev` and `build`.
 
 `scripts/screenshot.mjs` drives an installed Chrome over the DevTools protocol with no extra
 packages, and takes an optional snippet of JS to set the page up before capturing — useful for
@@ -201,8 +202,9 @@ src/
 public/
   fonts/                 Optician Sans (SIL OFL), self-hosted
   see-together-logo.svg  Inverse lockup for the dark action bar
+  favicon.ico, *.png     SEE Together brand icons
 scripts/
-  generate-icons.mjs     Dependency-free PNG icon and social card generator
+  generate-og-image.mjs  Dependency-free social card generator
   screenshot.mjs         Headless-Chrome capture for visual checks
 docs/
   original-prototype.html  The single-file version this grew from

@@ -6,15 +6,15 @@
   "description": "An interactive focimeter (lensmeter) trainer for optometry and dispensing students.",
   "license": "MIT",
   "scripts": {
-    "predev": "node scripts/generate-icons.mjs",
+    "predev": "node scripts/generate-og-image.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/generate-icons.mjs",
+    "prebuild": "node scripts/generate-og-image.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "icons": "node scripts/generate-icons.mjs",
+    "og-image": "node scripts/generate-og-image.mjs",
     "screenshot": "node scripts/screenshot.mjs"
   },
   "devDependencies": {

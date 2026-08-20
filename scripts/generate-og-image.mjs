@@ -1,12 +1,15 @@
 /**
- * Draws the PWA icons.
+ * Draws the social card shown when the app is linked.
  *
- * A raster encoder rather than a dependency: the icon is a few circles and
- * lines, and a build that pulls in a whole image toolchain to draw them is a
+ * A raster encoder rather than a dependency: the card is a few circles and
+ * bars, and a build that pulls in a whole image toolchain to draw them is a
  * build with one more thing to break. Node's own zlib does the compression, so
  * this runs anywhere Node does.
  *
- *   node scripts/generate-icons.mjs
+ * The favicon and app icons are not generated - those are the SEE Together
+ * brand marks, committed under public/.
+ *
+ *   node scripts/generate-og-image.mjs
  */
 
 import { deflateSync } from 'node:zlib';
@@ -14,14 +17,13 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'icons');
+const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
-// SEE Together brand: Royal Blue ground, Mustard mires.
-const BACKGROUND = [59, 85, 165]; // Royal Blue #3B55A5
-const GRATICULE = [255, 199, 14]; // Mustard Yellow #FFC70E
-const MIRE = [255, 199, 14]; // Mustard Yellow #FFC70E
+const BACKGROUND = [26, 26, 26]; // Ink #1A1A1A
+const GRATICULE = [59, 85, 165]; // Royal Blue #3B55A5
+const MIRE = [173, 255, 47]; // greenyellow, as the eyepiece draws them
 
-/** A tiny RGBA canvas with just the primitives the mark needs. */
+/** A tiny RGBA canvas with just the primitives the card needs. */
 function createCanvas(size) {
   const pixels = new Uint8Array(size * size * 4);
   return {
@@ -85,11 +87,6 @@ function createCanvas(size) {
   };
 }
 
-/** Encode a square RGBA buffer as a PNG. */
-function encodePng(size, pixels) {
-  return encodePngRect(size, size, pixels);
-}
-
 const CRC_TABLE = (() => {
   const table = new Int32Array(256);
   for (let n = 0; n < 256; n += 1) {
@@ -106,93 +103,11 @@ function crc32(buffer) {
   return crc ^ -1;
 }
 
-/**
- * The mark: the eyepiece view in miniature - a dark field, the graticule
- * rings, and the two crossed sets of mires.
- *
- * `inset` shrinks the artwork inside the canvas so a maskable icon survives
- * being cropped to a circle by the launcher.
- */
-function drawMark(size, inset) {
-  const canvas = createCanvas(size);
-  canvas.fill(BACKGROUND);
-
-  const centre = size / 2;
-  const radius = (size / 2) * inset;
-  const unit = radius / 10;
-
-  canvas.disc(centre, centre, radius, [26, 26, 26]);
-  canvas.ring(centre, centre, radius * 0.94, unit * 0.5, GRATICULE);
-  canvas.ring(centre, centre, radius * 0.55, unit * 0.35, [167, 158, 140]);
-  canvas.ring(centre, centre, radius * 0.28, unit * 0.35, [167, 158, 140]);
-
-  const half = unit * 0.55;
-  const reach = radius * 0.86;
-  canvas.bar(centre - reach, centre - half, centre + reach, centre + half, MIRE);
-  canvas.bar(centre - half, centre - reach, centre + half, centre + reach, MIRE);
-
-  return encodePng(size, canvas.pixels);
-}
-
-/**
- * The social card. Deliberately wordless: the platforms that show these will
- * not render SVG, and nothing here can rasterise a typeface, so the card
- * carries the eyepiece view itself rather than a title it cannot draw.
- */
-function drawSocialCard(width, height) {
-  // Drawn on a square canvas the full card width, then cropped to the card
-  // height - the primitives only know about square buffers.
-  const canvas = createCanvas(width);
-  canvas.fill(BACKGROUND);
-
-  const centre = { x: width / 2, y: height / 2 };
-  const radius = height * 0.42;
-  const unit = radius / 10;
-
-  canvas.disc(centre.x, centre.y, radius, [26, 26, 26]);
-  canvas.ring(centre.x, centre.y, radius * 0.96, unit * 0.4, GRATICULE);
-  canvas.ring(centre.x, centre.y, radius * 0.62, unit * 0.25, [167, 158, 140]);
-  canvas.ring(centre.x, centre.y, radius * 0.4, unit * 0.25, [167, 158, 140]);
-  canvas.ring(centre.x, centre.y, radius * 0.2, unit * 0.25, [167, 158, 140]);
-
-  // One set of mires sharp, the other spread into a soft band: the whole task
-  // of the app in a single picture.
-  const reach = radius * 0.92;
-  const sharp = unit * 0.42;
-  canvas.bar(centre.x - reach, centre.y - sharp, centre.x + reach, centre.y + sharp, MIRE);
-  for (const offset of [-unit * 2.4, unit * 2.4]) {
-    canvas.bar(
-      centre.x - reach,
-      centre.y + offset - sharp,
-      centre.x + reach,
-      centre.y + offset + sharp,
-      MIRE,
-    );
-  }
-  // The crossing set is left out of focus - one sharp, one spread - which is
-  // exactly the moment the student is being asked to resolve.
-  const spread = unit * 1.5;
-  for (const offset of [-unit * 2.4, 0, unit * 2.4]) {
-    for (let step = -spread; step <= spread; step += 0.5) {
-      const x = centre.x + offset + step;
-      const alpha = 0.12 * (1 - Math.abs(step) / (spread + 0.5));
-      for (let y = Math.round(centre.y - reach); y < centre.y + reach; y += 1) {
-        canvas.blend(Math.round(x), y, MIRE, alpha);
-      }
-    }
-  }
-
-  // Crop the square canvas down to the card aspect ratio.
-  const out = new Uint8Array(width * height * 4);
-  out.set(canvas.pixels.subarray(0, width * height * 4));
-  return encodePngRect(width, height, out);
-}
-
-/** PNG encoder for a non-square image. */
-function encodePngRect(width, height, pixels) {
+/** Encode an RGBA buffer as a PNG. */
+function encodePng(width, height, pixels) {
   const raw = Buffer.alloc(height * (width * 4 + 1));
   for (let y = 0; y < height; y += 1) {
-    raw[y * (width * 4 + 1)] = 0;
+    raw[y * (width * 4 + 1)] = 0; // filter type 0 (none)
     Buffer.from(pixels.buffer, y * width * 4, width * 4).copy(raw, y * (width * 4 + 1) + 1);
   }
 
@@ -208,8 +123,8 @@ function encodePngRect(width, height, pixels) {
   const header = Buffer.alloc(13);
   header.writeUInt32BE(width, 0);
   header.writeUInt32BE(height, 4);
-  header[8] = 8;
-  header[9] = 6;
+  header[8] = 8; // bit depth
+  header[9] = 6; // colour type: RGBA
 
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
@@ -219,20 +134,58 @@ function encodePngRect(width, height, pixels) {
   ]);
 }
 
-mkdirSync(OUT_DIR, { recursive: true });
+/**
+ * The card. Deliberately wordless: the platforms that show these will not
+ * render SVG, and nothing here can rasterise a typeface, so the card carries
+ * the eyepiece view itself rather than a title it cannot draw.
+ */
+function drawSocialCard(width, height) {
+  // Drawn on a square canvas the full card width, then cropped to the card
+  // height - the primitives only know about square buffers.
+  const canvas = createCanvas(width);
+  canvas.fill(BACKGROUND);
 
-const icons = [
-  ['icon-192.png', 192, 0.92],
-  ['icon-512.png', 512, 0.92],
-  // Maskable icons are cropped to as little as 80% of the canvas.
-  ['icon-maskable-512.png', 512, 0.66],
-  ['apple-touch-icon.png', 180, 0.92],
-];
+  const centre = { x: width / 2, y: height / 2 };
+  const radius = height * 0.42;
+  const unit = radius / 10;
 
-for (const [name, size, inset] of icons) {
-  writeFileSync(join(OUT_DIR, name), drawMark(size, inset));
-  console.log(`wrote icons/${name} (${size}x${size})`);
+  canvas.disc(centre.x, centre.y, radius, [14, 14, 11]);
+  canvas.ring(centre.x, centre.y, radius * 0.96, unit * 0.4, GRATICULE);
+  canvas.ring(centre.x, centre.y, radius * 0.62, unit * 0.25, [154, 166, 184]);
+  canvas.ring(centre.x, centre.y, radius * 0.4, unit * 0.25, [154, 166, 184]);
+  canvas.ring(centre.x, centre.y, radius * 0.2, unit * 0.25, [154, 166, 184]);
+
+  // One set of mires sharp, the other spread into a soft band: the whole task
+  // of the app in a single picture.
+  const reach = radius * 0.92;
+  const sharp = unit * 0.42;
+  canvas.bar(centre.x - reach, centre.y - sharp, centre.x + reach, centre.y + sharp, MIRE);
+  for (const offset of [-unit * 2.4, unit * 2.4]) {
+    canvas.bar(
+      centre.x - reach,
+      centre.y + offset - sharp,
+      centre.x + reach,
+      centre.y + offset + sharp,
+      MIRE,
+    );
+  }
+  const spread = unit * 1.5;
+  for (const offset of [-unit * 2.4, 0, unit * 2.4]) {
+    for (let step = -spread; step <= spread; step += 0.5) {
+      const x = centre.x + offset + step;
+      const alpha = 0.12 * (1 - Math.abs(step) / (spread + 0.5));
+      for (let y = Math.round(centre.y - reach); y < centre.y + reach; y += 1) {
+        canvas.blend(Math.round(x), y, MIRE, alpha);
+      }
+    }
+  }
+
+  // Crop the square canvas down to the card aspect ratio.
+  const out = new Uint8Array(width * height * 4);
+  out.set(canvas.pixels.subarray(0, width * height * 4));
+  return encodePng(width, height, out);
 }
 
-writeFileSync(join(OUT_DIR, '..', 'og-image.png'), drawSocialCard(1200, 630));
-console.log('wrote og-image.png (1200x630)');
+mkdirSync(OUT_DIR, { recursive: true });
+writeFileSync(join(OUT_DIR, 'og-image.png'), drawSocialCard(1200, 630));
+console.log('wrote public/og-image.png (1200x630)');
