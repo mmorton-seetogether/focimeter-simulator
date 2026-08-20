@@ -171,20 +171,24 @@ export class EyeReticle extends HTMLElement {
           fill: none;
           stroke-linecap: butt;
         }
-        .grat-tick { stroke: #cfd6e2; stroke-width: 0.8; }
+        /*
+         * The graticule is etched on glass and read against the lit field, so
+         * it is black - the lamp behind it is what makes it legible.
+         */
+        .grat-tick { stroke: #0a0f05; stroke-width: 0.8; }
         .grat-label {
           dominant-baseline: middle;
           text-anchor: middle;
           font: 500 6px system-ui, sans-serif;
-          fill: #cfd6e2;
+          fill: #0a0f05;
         }
-        .grat-line { stroke: #cfd6e2; stroke-width: 0.8; fill: none; }
-        .grat-ring { stroke: #9aa6b8; stroke-width: 0.7; fill: none; }
+        .grat-line { stroke: #0a0f05; stroke-width: 0.8; fill: none; }
+        .grat-ring { stroke: rgba(10, 15, 5, 0.55); stroke-width: 0.7; fill: none; }
         .grat-number {
           dominant-baseline: middle;
           text-anchor: middle;
           font: 500 6px system-ui, sans-serif;
-          fill: #9aa6b8;
+          fill: #0a0f05;
         }
         /*
          * The rim of the field stop. Stroke only - never give this a CSS
@@ -193,16 +197,16 @@ export class EyeReticle extends HTMLElement {
          */
         .bezel {
           fill: none;
-          stroke: #05070a;
+          stroke: #000000;
           stroke-width: 5;
         }
       </style>
       <svg viewBox="-120 -120 240 240" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="field" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#20262f" />
-            <stop offset="70%" stop-color="#161b22" />
-            <stop offset="100%" stop-color="#0b0e13" />
+            <stop offset="0%" stop-color="#547f18" />
+            <stop offset="70%" stop-color="#4c7514" />
+            <stop offset="100%" stop-color="#3f620f" />
           </radialGradient>
           <clipPath id="field-clip">
             <circle cx="0" cy="0" r="110" />

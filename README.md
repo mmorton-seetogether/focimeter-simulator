@@ -105,8 +105,9 @@ Three deliberate departures from the light brand palette, all functional:
 - **The instrument itself is not branded.** The power drum keeps its engraved black and red scale,
   the axis wheel its plain grey rim, and both keep plain numerals. These are meant to read as the
   real hardware, and a house typeface on an engraved dial does not.
-- **The eyepiece stays dark, with green mires.** A focimeter target is a lamp behind a graticule:
-  it does not read on cream, and green is the colour of a real lit target.
+- **The eyepiece is a lit green field.** A focimeter target is a lamp behind an etched graticule,
+  so the field is green, the mires are a brighter green on top of it, and the graticule is black.
+  Those are the colours of the real instrument rather than of the brand.
 - **A dark theme is offered.** The cream theme is the default and the brand look; the dark theme
   keeps the same accents on the brand's ink and bar greys, for reading a screen in a dim room.
 
