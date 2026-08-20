@@ -16,9 +16,10 @@ import { fileURLToPath } from 'node:url';
 
 const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'icons');
 
-const BACKGROUND = [15, 23, 41]; // --bench
-const GRATICULE = [154, 230, 0]; // --accent
-const MIRE = [173, 255, 47]; // greenyellow
+// SEE Together brand: Royal Blue ground, Mustard mires.
+const BACKGROUND = [59, 85, 165]; // Royal Blue #3B55A5
+const GRATICULE = [255, 199, 14]; // Mustard Yellow #FFC70E
+const MIRE = [255, 199, 14]; // Mustard Yellow #FFC70E
 
 /** A tiny RGBA canvas with just the primitives the mark needs. */
 function createCanvas(size) {
@@ -120,10 +121,10 @@ function drawMark(size, inset) {
   const radius = (size / 2) * inset;
   const unit = radius / 10;
 
-  canvas.disc(centre, centre, radius, [10, 15, 26]);
+  canvas.disc(centre, centre, radius, [26, 26, 26]);
   canvas.ring(centre, centre, radius * 0.94, unit * 0.5, GRATICULE);
-  canvas.ring(centre, centre, radius * 0.55, unit * 0.35, [110, 130, 160]);
-  canvas.ring(centre, centre, radius * 0.28, unit * 0.35, [110, 130, 160]);
+  canvas.ring(centre, centre, radius * 0.55, unit * 0.35, [167, 158, 140]);
+  canvas.ring(centre, centre, radius * 0.28, unit * 0.35, [167, 158, 140]);
 
   const half = unit * 0.55;
   const reach = radius * 0.86;
@@ -148,11 +149,11 @@ function drawSocialCard(width, height) {
   const radius = height * 0.42;
   const unit = radius / 10;
 
-  canvas.disc(centre.x, centre.y, radius, [10, 15, 26]);
+  canvas.disc(centre.x, centre.y, radius, [26, 26, 26]);
   canvas.ring(centre.x, centre.y, radius * 0.96, unit * 0.4, GRATICULE);
-  canvas.ring(centre.x, centre.y, radius * 0.62, unit * 0.25, [110, 130, 160]);
-  canvas.ring(centre.x, centre.y, radius * 0.4, unit * 0.25, [110, 130, 160]);
-  canvas.ring(centre.x, centre.y, radius * 0.2, unit * 0.25, [110, 130, 160]);
+  canvas.ring(centre.x, centre.y, radius * 0.62, unit * 0.25, [167, 158, 140]);
+  canvas.ring(centre.x, centre.y, radius * 0.4, unit * 0.25, [167, 158, 140]);
+  canvas.ring(centre.x, centre.y, radius * 0.2, unit * 0.25, [167, 158, 140]);
 
   // One set of mires sharp, the other spread into a soft band: the whole task
   // of the app in a single picture.

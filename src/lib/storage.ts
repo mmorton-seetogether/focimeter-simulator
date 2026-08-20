@@ -23,7 +23,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   mode: 'practice',
   level: 'beginner',
   cylFormat: 'minus',
-  theme: 'system',
+  // The brand look is the cream theme, so that is what a first visit gets
+  // rather than whatever the operating system happens to prefer.
+  theme: 'light',
   focusMeter: false,
   showRx: true,
 };

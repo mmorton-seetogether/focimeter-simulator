@@ -1,76 +1,98 @@
 /* ------------------------------------------------------------------ *
- * Tokens
+ * SEE Together brand
  *
- * The dark theme is the default: an instrument bench is a dark place and
- * the mires read best against it. The light theme keeps the eyepiece dark
- * regardless, because a backlit target on a white field is not a focimeter.
+ * Palette and type from the SEE Together brand style sheet, matched to the
+ * refraction simulator so the two trainers sit together as one suite.
+ *
+ *   Royal Blue  #3B55A5    Burnt Orange #DD5A28    Teal    #3F9684
+ *   Cream       #FAF3E6    Mustard      #FFC70E    Ink     #1A1A1A
+ *
+ * Be Vietnam Pro carries headings and body; Optician Sans - the optical
+ * chart face - carries the small capitalised labels.
  * ------------------------------------------------------------------ */
 
-:root {
-  --ink: #e8ecf4;
-  --ink-soft: #a8b2c4;
-  --ink-faint: #6f7a8d;
-
-  --bench: #0f1729;
-  --bench-grad: radial-gradient(120% 90% at 50% 0%, #1b2742 0%, #0f1729 55%, #0a0f1c 100%);
-  --panel: #1b2230;
-  --panel-raised: #222a3a;
-  --panel-edge: #0a0e16;
-  --panel-line: rgba(255, 255, 255, 0.07);
-
-  --accent: #9ae600;
-  --accent-ink: #16220a;
-  --danger: #ff6b6b;
-  --warn: #ffb020;
-  --ok: #4ade80;
-
-  --lcd-bg: #0a0f06;
-  --lcd-ink: #9ae600;
-  --lcd-dim: #4d6b1f;
-
-  --focus-ring: #9ae600;
-  --mire-colour: greenyellow;
-
-  --radius: 12px;
-  --radius-sm: 7px;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-  --font: 'Be Vietnam Pro', ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
-
-  color-scheme: dark;
+@font-face {
+  font-family: 'Optician Sans';
+  src: url('/fonts/Optician-Sans.woff2') format('woff2'),
+    url('/fonts/Optician-Sans.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-:root[data-theme='light'] {
-  --ink: #16202f;
-  --ink-soft: #4c5a70;
-  --ink-faint: #78849a;
+:root {
+  /* Brand constants - the same value in either theme. */
+  --royal: #3b55a5;
+  --teal: #3f9684;
+  --burnt-orange: #dd5a28;
+  --mustard: #ffc70e;
+  --rose: #da8c9d;
+  --cream: #faf3e6;
+  --brand-ink: #1a1a1a;
+  --brand-bar: #262626;
 
-  --bench: #eef1f6;
-  --bench-grad: radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #eef1f6 55%, #e2e7f0 100%);
+  /* Cream theme: the brand default, as the refraction simulator runs. */
+  --ink: var(--brand-ink);
+  --ink-soft: #4b4b4b;
+  --ink-faint: #7c7c7c;
+
+  --bench: var(--cream);
+  --bench-grad: none;
   --panel: #ffffff;
-  --panel-raised: #f6f8fc;
-  --panel-edge: #d3dae6;
-  --panel-line: rgba(16, 32, 47, 0.09);
+  --panel-raised: #f7f3ea;
+  --panel-edge: #e4ded1;
+  --panel-line: rgba(26, 26, 26, 0.1);
 
-  --accent: #3f7d00;
+  --accent: var(--burnt-orange);
   --accent-ink: #ffffff;
-  --danger: #c62828;
-  --warn: #a86400;
-  --ok: #16794a;
+  --control: var(--royal);
+  --control-ink: #ffffff;
 
-  --lcd-bg: #12200a;
-  --lcd-ink: #a8f01a;
-  --lcd-dim: #5d7f28;
+  --danger: #c2451b;
+  --warn: #a8700a;
+  --ok: var(--teal);
 
-  --focus-ring: #3f7d00;
+  /* The eyepiece stays lit whatever the theme - a focimeter target is a
+     lamp behind a graticule, and mires do not read on cream. */
+  --lcd-bg: #14140f;
+  --lcd-ink: var(--mustard);
+  --lcd-dim: #8a6c14;
+  --mire-colour: var(--mustard);
 
-  --shadow: 0 8px 24px rgba(24, 38, 63, 0.12);
-  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --focus-ring: var(--royal);
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --shadow: 0 4px 6px -1px rgba(26, 26, 26, 0.1), 0 2px 4px -2px rgba(26, 26, 26, 0.1);
+  --shadow-inset: none;
+
+  --font: 'Be Vietnam Pro', system-ui, Arial, sans-serif;
+  --font-label: 'Optician Sans', 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --ink: var(--cream);
+  --ink-soft: #c7c0b2;
+  --ink-faint: #918a7d;
+
+  --bench: var(--brand-ink);
+  --bench-grad: none;
+  --panel: var(--brand-bar);
+  --panel-raised: #303030;
+  --panel-edge: #3c3c3c;
+  --panel-line: rgba(250, 243, 230, 0.12);
+
+  --danger: #e8734a;
+  --warn: var(--mustard);
+  --ok: #5cb8a3;
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
 }
 
 /* ------------------------------------------------------------------ *
@@ -90,16 +112,15 @@ html {
 }
 
 body {
+  --page-pad: clamp(0.75rem, 2vw, 1.5rem);
   min-height: 100%;
   font-family: var(--font);
   color: var(--ink);
   background: var(--bench);
-  background-image: var(--bench-grad);
-  background-attachment: fixed;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  padding: clamp(0.75rem, 2vw, 1.5rem);
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding: var(--page-pad);
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   gap: clamp(0.75rem, 1.6vw, 1.25rem);
@@ -214,12 +235,12 @@ select {
 
 .segmented {
   display: inline-flex;
-  padding: 3px;
+  padding: 4px;
   gap: 3px;
   background: var(--panel);
   border: 1px solid var(--panel-edge);
   border-radius: 999px;
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--shadow);
 }
 
 .segmented__option {
@@ -239,22 +260,26 @@ select {
 }
 
 .segmented__option[aria-selected='true'] {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--control);
+  color: var(--control-ink);
 }
 
 .icon-button {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--panel-edge);
   background: var(--panel);
-  color: var(--ink-soft);
+  color: var(--royal);
   cursor: pointer;
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--shadow);
   transition: color 160ms ease, background 160ms ease;
+}
+
+:root[data-theme='dark'] .icon-button {
+  color: var(--ink-soft);
 }
 
 .icon-button:hover {
@@ -326,11 +351,16 @@ select {
 }
 
 .panel__label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--royal);
+}
+
+:root[data-theme='dark'] .panel__label {
+  color: var(--ink-soft);
 }
 
 .panel__hint {
@@ -425,9 +455,10 @@ select {
 }
 
 .readout b {
+  font-family: var(--font-label);
   font-weight: 400;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
   color: var(--lcd-dim);
 }
 
@@ -511,16 +542,20 @@ select {
 
 .tag {
   display: inline-block;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: var(--panel-raised);
-  border: 1px solid var(--panel-line);
-  color: var(--ink-soft);
+  background: rgba(63, 150, 132, 0.12);
+  border: 1px solid rgba(63, 150, 132, 0.35);
+  color: var(--teal);
   cursor: pointer;
+}
+
+.tag:hover {
+  background: rgba(63, 150, 132, 0.2);
 }
 
 .answer-form {
@@ -560,11 +595,16 @@ select {
 }
 
 .rx-field__label {
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--royal);
+}
+
+:root[data-theme='dark'] .rx-field__label {
+  color: var(--ink-soft);
 }
 
 .rx-field__unit {
@@ -574,21 +614,20 @@ select {
 
 .rx-field__control {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
   align-items: stretch;
   background: var(--panel-raised);
   border: 1px solid var(--panel-edge);
   border-radius: var(--radius-sm);
-  overflow: hidden;
 }
 
 .rx-input {
   border: 0;
   background: transparent;
   text-align: center;
-  padding: 0.45rem 0.1rem;
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
+  padding: 0.5rem 0.1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   min-width: 0;
 }
@@ -605,17 +644,23 @@ select {
 
 .rx-step {
   border: 0;
-  background: transparent;
-  color: var(--ink-faint);
+  margin: 4px;
+  border-radius: var(--radius-xs);
+  background: var(--control);
+  color: var(--control-ink);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
   line-height: 1;
-  transition: background 140ms ease, color 140ms ease;
+  transition: filter 140ms ease, transform 80ms ease;
 }
 
 .rx-step:hover {
-  background: var(--panel);
-  color: var(--ink);
+  filter: brightness(1.1);
+}
+
+.rx-step:active {
+  transform: scale(0.94);
 }
 
 /* The answer form locks once a lens has been marked - it should look locked. */
@@ -640,33 +685,34 @@ select {
 
 .button {
   flex: 1 1 auto;
-  border: 1px solid var(--panel-edge);
-  background: var(--panel-raised);
-  color: var(--ink);
+  border: 2px solid var(--teal);
+  background: transparent;
+  color: var(--teal);
   border-radius: var(--radius-sm);
   padding: 0.55rem 0.9rem;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 160ms ease, transform 80ms ease;
 }
 
 .button:hover {
-  background: var(--panel);
+  background: rgba(63, 150, 132, 0.1);
 }
 
 .button:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 .button--primary {
   background: var(--accent);
   border-color: transparent;
   color: var(--accent-ink);
+  box-shadow: var(--shadow);
 }
 
 .button--primary:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.1);
   background: var(--accent);
 }
 
@@ -795,8 +841,9 @@ select {
 }
 
 .stat dt {
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
@@ -819,11 +866,16 @@ select {
 }
 
 .history > summary {
-  font-size: 0.76rem;
-  color: var(--ink-faint);
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  color: var(--royal);
   cursor: pointer;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+:root[data-theme='dark'] .history > summary {
+  color: var(--ink-soft);
 }
 
 .history-list {
@@ -899,16 +951,84 @@ select {
  * Footer
  * ------------------------------------------------------------------ */
 
-.footer {
-  max-width: 1440px;
-  width: 100%;
-  margin-inline: auto;
+/*
+ * The dark action bar the refraction simulator carries, so the two trainers
+ * read as one suite. It sits flush to the window edges, outside the page
+ * padding, which is why the body padding is applied to the regions above it
+ * rather than to the body itself.
+ */
+.bottom-bar {
+  /* Bleeds to the window edges only sideways - the body already ends flush
+     with the bar, so pulling it down as well pushed it past the viewport. */
+  margin-inline: calc(-1 * var(--page-pad));
+  background: var(--brand-bar);
+  color: #ffffff;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  font-size: 0.74rem;
-  color: var(--ink-faint);
+  padding: 0.75rem clamp(0.75rem, 2vw, 1.25rem);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.bottom-bar__note {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bottom-bar__group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bottom-bar__label {
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.bar-button {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 40px;
+  padding-inline: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: transparent;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, transform 80ms ease;
+}
+
+.bar-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bar-button:active {
+  transform: scale(0.95);
+}
+
+.bottom-bar__logo {
+  height: 38px;
+  width: auto;
+}
+
+@media (max-width: 560px) {
+  .bottom-bar__note,
+  .bottom-bar__label {
+    display: none;
+  }
+
+  .bottom-bar {
+    justify-content: center;
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -1082,7 +1202,10 @@ kbd {
 
 @media (max-width: 560px) {
   body {
-    padding: 0.6rem;
+    /* Set the token, not the padding: the action bar's negative margin is
+       derived from it, and overriding one without the other left the bar a
+       few pixels wider than the window. */
+    --page-pad: 0.6rem;
   }
 
   .topbar {

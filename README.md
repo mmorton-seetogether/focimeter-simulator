@@ -80,6 +80,34 @@ a misaligned cylinder can never be brought sharp at *any* drum setting.
 
 ---
 
+## Branding
+
+The app carries SEE Together branding and is styled to sit alongside the
+[refraction simulator](https://github.com/mmorton-seetogether) as one suite — same palette, same
+type, same dark action bar and logo lockup.
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| Royal Blue | `#3B55A5` | Section labels, steppers, mode switch, focus rings |
+| Burnt Orange | `#DD5A28` | The primary action, and the minus half of the drum scale |
+| Teal | `#3F9684` | Secondary buttons, correct answers |
+| Mustard Yellow | `#FFC70E` | The mires and the instrument readout |
+| Cream | `#FAF3E6` | Page ground |
+| Ink / Bar | `#1A1A1A` / `#262626` | Text, and the action bar |
+
+Type is **Be Vietnam Pro** for headings and body, with **Optician Sans** — the optical chart face,
+self-hosted from `public/fonts` under the SIL Open Font Licence — for the small capitalised labels.
+
+Two deliberate departures from the light brand palette, both functional:
+
+- **The eyepiece stays dark.** A focimeter target is a lamp behind a graticule, and mires do not
+  read on cream. The field keeps a warm near-black ground with mustard mires, which is both the
+  brand's bright colour and a plausible illuminated target.
+- **A dark theme is offered.** The cream theme is the default and the brand look; the dark theme
+  keeps the same accents on the brand's ink and bar greys, for reading a screen in a dim room.
+
+---
+
 ## Running it
 
 Requires Node 20 or newer.
@@ -167,7 +195,10 @@ src/
     power-drum.ts        The power drum
     axis-wheel.ts        The axis wheel
     rx-fields.ts         Three stepped prescription fields, used for input and answers
-  styles/app.css         Design tokens, layout, and both themes
+  styles/app.css         Brand tokens, layout, and both themes
+public/
+  fonts/                 Optician Sans (SIL OFL), self-hosted
+  see-together-logo.svg  Inverse lockup for the dark action bar
 scripts/
   generate-icons.mjs     Dependency-free PNG icon and social card generator
   screenshot.mjs         Headless-Chrome capture for visual checks

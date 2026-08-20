@@ -346,6 +346,13 @@ function line(label: string, ok: boolean, expected: string, given: string): stri
 
 /** Turn a wrong answer into the one thing most worth saying about it. */
 function hint(grade: GradeResult): string {
+  // A sphere has one reading, not two, so none of the advice below about
+  // taking the cylinder off the wrong reading applies to it.
+  if (grade.expected.cyl === 0) {
+    return grade.cyl.ok
+      ? 'This one is a sphere: both sets of lines clear together at a single drum reading. Take that reading again.'
+      : 'This one is a sphere — both sets of lines clear at the same drum reading, so there is no cylinder to record.';
+  }
   if (!grade.axis.ok && grade.sph.ok && grade.cyl.ok) {
     return 'Powers right, axis out. Hunt the axis before you touch the drum: turn the wheel until the lines look square rather than skewed.';
   }
@@ -368,7 +375,7 @@ function renderStats(): void {
     ['Accuracy', stats.attempts === 0 ? '—' : `${Math.round(accuracy(stats) * 100)}%`],
     ['Streak', String(stats.streak)],
     ['Best', String(stats.bestStreak)],
-    ['Avg time', stats.history.length === 0 ? '—' : `${averageSeconds(stats).toFixed(0)}s`],
+    ['Time', stats.history.length === 0 ? '—' : `${averageSeconds(stats).toFixed(0)}s`],
   ];
   statsList.innerHTML = cells
     .map(([term, value]) => `<div class="stat"><dt>${term}</dt><dd>${value}</dd></div>`)

@@ -205,8 +205,9 @@ export class PowerDrum extends HTMLElement {
     for (let dioptres = 0; dioptres <= POWER_LIMIT; dioptres += DIOPTRE_STEP) {
       const whole = dioptres % 1 === 0;
       for (const sign of [1, -1]) {
-        // The plus half of the drum is printed black, the minus half red,
-        // exactly as the scale on a real focimeter is engraved.
+        // The plus half of the drum is printed dark and the minus half in
+        // burnt orange, the way a real focimeter engraves its two scales -
+        // here in the brand's ink and orange rather than black and red.
         const tick = document.createElementNS(SVG_NS, 'line');
         const y = -sign * dioptres * UNITS_PER_DIOPTRE;
         tick.setAttribute('x1', '-25');
@@ -254,7 +255,7 @@ export class PowerDrum extends HTMLElement {
           display: flex;
           flex-direction: column;
           height: 100%;
-          background: linear-gradient(90deg, #d6d8dc 0%, #ffffff 22%, #fbfbfc 60%, #c9ccd1 100%);
+          background: linear-gradient(90deg, #ded7c9 0%, #ffffff 22%, #fdfbf7 60%, #d6cfc0 100%);
           border-radius: 3px;
           overflow: hidden;
         }
@@ -295,16 +296,16 @@ export class PowerDrum extends HTMLElement {
           #scale { transition: none; }
         }
         .tick { stroke-width: 1; }
-        .tick.plus { stroke: #14161a; }
-        .tick.minus { stroke: #c81e1e; }
+        .tick.plus { stroke: #1a1a1a; }
+        .tick.minus { stroke: #dd5a28; }
         .label {
           dominant-baseline: middle;
           text-anchor: middle;
-          font: 600 11px system-ui, sans-serif;
+          font: 400 11px 'Optician Sans', 'Be Vietnam Pro', system-ui, sans-serif;
         }
-        .label.plus { fill: #14161a; }
-        .label.minus { fill: #c81e1e; }
-        .index { fill: #14161a; }
+        .label.plus { fill: #1a1a1a; }
+        .label.minus { fill: #dd5a28; }
+        .index { fill: #1a1a1a; }
       </style>
       <div class="container">
         <svg viewBox="-25 -200 50 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

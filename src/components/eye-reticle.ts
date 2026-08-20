@@ -171,20 +171,20 @@ export class EyeReticle extends HTMLElement {
           fill: none;
           stroke-linecap: butt;
         }
-        .grat-tick { stroke: #cfd6e2; stroke-width: 0.8; }
+        .grat-tick { stroke: #ddd6c6; stroke-width: 0.8; }
         .grat-label {
           dominant-baseline: middle;
           text-anchor: middle;
-          font: 500 6px system-ui, sans-serif;
-          fill: #cfd6e2;
+          font: 400 6.5px 'Optician Sans', 'Be Vietnam Pro', system-ui, sans-serif;
+          fill: #ddd6c6;
         }
-        .grat-line { stroke: #cfd6e2; stroke-width: 0.8; fill: none; }
-        .grat-ring { stroke: #9aa6b8; stroke-width: 0.7; fill: none; }
+        .grat-line { stroke: #ddd6c6; stroke-width: 0.8; fill: none; }
+        .grat-ring { stroke: #a79e8c; stroke-width: 0.7; fill: none; }
         .grat-number {
           dominant-baseline: middle;
           text-anchor: middle;
-          font: 500 6px system-ui, sans-serif;
-          fill: #9aa6b8;
+          font: 400 6.5px 'Optician Sans', 'Be Vietnam Pro', system-ui, sans-serif;
+          fill: #a79e8c;
         }
         /*
          * The rim of the field stop. Stroke only - never give this a CSS
@@ -193,16 +193,16 @@ export class EyeReticle extends HTMLElement {
          */
         .bezel {
           fill: none;
-          stroke: #05070a;
+          stroke: #1a1a1a;
           stroke-width: 5;
         }
       </style>
       <svg viewBox="-120 -120 240 240" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="field" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#20262f" />
-            <stop offset="70%" stop-color="#161b22" />
-            <stop offset="100%" stop-color="#0b0e13" />
+            <stop offset="0%" stop-color="#26251f" />
+            <stop offset="70%" stop-color="#191813" />
+            <stop offset="100%" stop-color="#0e0e0b" />
           </radialGradient>
           <clipPath id="field-clip">
             <circle cx="0" cy="0" r="110" />
