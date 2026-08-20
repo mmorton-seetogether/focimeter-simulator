@@ -244,18 +244,18 @@ export class AxisWheel extends HTMLElement {
         @media (prefers-reduced-motion: reduce) {
           #scale { transition: none; }
         }
-        .tick { stroke: #4a453c; stroke-width: 1; }
-        .tick.major { stroke: #1a1a1a; stroke-width: 1.4; }
+        .tick { stroke: #2b2f36; stroke-width: 1; }
+        .tick.major { stroke: #0d0f12; stroke-width: 1.4; }
         text {
           dominant-baseline: middle;
           text-anchor: middle;
-          font: 400 7.5px 'Optician Sans', 'Be Vietnam Pro', system-ui, sans-serif;
-          fill: #1a1a1a;
+          font: 600 7px system-ui, sans-serif;
+          fill: #14161a;
         }
-        .rim-outer { fill: #ded7c9; }
-        .rim-inner { fill: #bdb4a2; }
-        .pointer { stroke: #1a1a1a; stroke-width: 1.2; }
-        .lens { fill: rgba(59, 85, 165, 0.14); stroke: #3b55a5; stroke-width: 4; }
+        .rim-outer { fill: #b9bec7; }
+        .rim-inner { fill: #8b929c; }
+        .pointer { stroke: #14161a; stroke-width: 1.2; }
+        .lens { fill: rgba(120, 190, 255, 0.16); stroke: #2b2f36; stroke-width: 4; }
       </style>
       <div class="container">
         <svg viewBox="-110 -110 220 40" preserveAspectRatio="xMidYMin slice" aria-hidden="true">

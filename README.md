@@ -91,18 +91,20 @@ type, same dark action bar and logo lockup.
 | Royal Blue | `#3B55A5` | Section labels, steppers, mode switch, focus rings |
 | Burnt Orange | `#DD5A28` | The primary action, and the minus half of the drum scale |
 | Teal | `#3F9684` | Secondary buttons, correct answers |
-| Mustard Yellow | `#FFC70E` | The mires and the instrument readout |
+| Mustard Yellow | `#FFC70E` | The instrument readout, and the app icon |
 | Cream | `#FAF3E6` | Page ground |
 | Ink / Bar | `#1A1A1A` / `#262626` | Text, and the action bar |
 
 Type is **Be Vietnam Pro** for headings and body, with **Optician Sans** — the optical chart face,
 self-hosted from `public/fonts` under the SIL Open Font Licence — for the small capitalised labels.
 
-Two deliberate departures from the light brand palette, both functional:
+Three deliberate departures from the light brand palette, all functional:
 
-- **The eyepiece stays dark.** A focimeter target is a lamp behind a graticule, and mires do not
-  read on cream. The field keeps a warm near-black ground with mustard mires, which is both the
-  brand's bright colour and a plausible illuminated target.
+- **The instrument itself is not branded.** The power drum keeps its engraved black and red scale,
+  the axis wheel its plain grey rim, and both keep plain numerals. These are meant to read as the
+  real hardware, and a house typeface on an engraved dial does not.
+- **The eyepiece stays dark, with green mires.** A focimeter target is a lamp behind a graticule:
+  it does not read on cream, and green is the colour of a real lit target.
 - **A dark theme is offered.** The cream theme is the default and the brand look; the dark theme
   keeps the same accents on the brand's ink and bar greys, for reading a screen in a dim room.
 

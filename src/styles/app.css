@@ -53,11 +53,13 @@
   --ok: var(--teal);
 
   /* The eyepiece stays lit whatever the theme - a focimeter target is a
-     lamp behind a graticule, and mires do not read on cream. */
+     lamp behind a graticule, and mires do not read on cream. The instrument
+     itself is left unbranded: the mires keep the green of a real lit target,
+     and the dials keep their engraved black and red. */
   --lcd-bg: #14140f;
   --lcd-ink: var(--mustard);
   --lcd-dim: #8a6c14;
-  --mire-colour: var(--mustard);
+  --mire-colour: greenyellow;
 
   --focus-ring: var(--royal);
 
@@ -220,11 +222,6 @@ select {
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.2;
-}
-
-.brand__text p {
-  font-size: 0.78rem;
-  color: var(--ink-faint);
 }
 
 .topbar__controls {
@@ -1210,10 +1207,6 @@ kbd {
 
   .topbar {
     justify-content: center;
-  }
-
-  .brand__text p {
-    display: none;
   }
 
   .workbench {
