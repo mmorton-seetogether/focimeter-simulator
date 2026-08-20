@@ -1,0 +1,1105 @@
+/* ------------------------------------------------------------------ *
+ * Tokens
+ *
+ * The dark theme is the default: an instrument bench is a dark place and
+ * the mires read best against it. The light theme keeps the eyepiece dark
+ * regardless, because a backlit target on a white field is not a focimeter.
+ * ------------------------------------------------------------------ */
+
+:root {
+  --ink: #e8ecf4;
+  --ink-soft: #a8b2c4;
+  --ink-faint: #6f7a8d;
+
+  --bench: #0f1729;
+  --bench-grad: radial-gradient(120% 90% at 50% 0%, #1b2742 0%, #0f1729 55%, #0a0f1c 100%);
+  --panel: #1b2230;
+  --panel-raised: #222a3a;
+  --panel-edge: #0a0e16;
+  --panel-line: rgba(255, 255, 255, 0.07);
+
+  --accent: #9ae600;
+  --accent-ink: #16220a;
+  --danger: #ff6b6b;
+  --warn: #ffb020;
+  --ok: #4ade80;
+
+  --lcd-bg: #0a0f06;
+  --lcd-ink: #9ae600;
+  --lcd-dim: #4d6b1f;
+
+  --focus-ring: #9ae600;
+  --mire-colour: greenyellow;
+
+  --radius: 12px;
+  --radius-sm: 7px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  --font: 'Be Vietnam Pro', ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --ink: #16202f;
+  --ink-soft: #4c5a70;
+  --ink-faint: #78849a;
+
+  --bench: #eef1f6;
+  --bench-grad: radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #eef1f6 55%, #e2e7f0 100%);
+  --panel: #ffffff;
+  --panel-raised: #f6f8fc;
+  --panel-edge: #d3dae6;
+  --panel-line: rgba(16, 32, 47, 0.09);
+
+  --accent: #3f7d00;
+  --accent-ink: #ffffff;
+  --danger: #c62828;
+  --warn: #a86400;
+  --ok: #16794a;
+
+  --lcd-bg: #12200a;
+  --lcd-ink: #a8f01a;
+  --lcd-dim: #5d7f28;
+
+  --focus-ring: #3f7d00;
+
+  --shadow: 0 8px 24px rgba(24, 38, 63, 0.12);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------ *
+ * Reset
+ * ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bench);
+  background-image: var(--bench-grad);
+  background-attachment: fixed;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:where(a) {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 50;
+  background: var(--panel-raised);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Topbar
+ * ------------------------------------------------------------------ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  max-width: 1440px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.brand__mark {
+  width: 34px;
+  height: 34px;
+  color: var(--accent);
+  flex: none;
+}
+
+.brand__text h1 {
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.brand__text p {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.topbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 999px;
+  box-shadow: var(--shadow-inset);
+}
+
+.segmented__option {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.segmented__option:hover {
+  color: var(--ink);
+}
+
+.segmented__option[aria-selected='true'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: var(--shadow-inset);
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.icon-button:hover {
+  color: var(--ink);
+  background: var(--panel-raised);
+}
+
+.icon-button__glyph {
+  width: 19px;
+  height: 19px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Workbench layout
+ * ------------------------------------------------------------------ */
+
+.workbench {
+  flex: 1;
+  /* Without this the grid refuses to shrink below its tallest panel and the
+     bench pushes the axis wheel off the bottom of the screen. */
+  min-height: 0;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+  grid-template-columns: minmax(0, 1.35fr) 96px minmax(340px, 0.95fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'eyepiece drum console'
+    'wheel    wheel console';
+  align-items: stretch;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), var(--shadow-inset);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+.panel--eyepiece {
+  grid-area: eyepiece;
+}
+.panel--drum {
+  grid-area: drum;
+  padding-inline: 0.5rem;
+}
+.panel--wheel {
+  grid-area: wheel;
+}
+.panel--console {
+  grid-area: console;
+  overflow-y: auto;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.panel__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.panel__hint {
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.stage {
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/*
+ * The eyepiece panel is always wider than it is tall, and a round field of
+ * view can only fill so much of that. The rail beside it takes the slack and
+ * carries the instrument's display - which is where a real focimeter puts it.
+ */
+.eyepiece {
+  display: flex;
+  gap: 0.9rem;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.eyepiece__rail {
+  flex: 0 1 210px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  justify-content: flex-start;
+}
+
+.eyepiece__note {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+  margin-top: auto;
+}
+
+/*
+ * No aspect-ratio here: the eyepiece SVG letterboxes itself with
+ * preserveAspectRatio, so the stage is free to take whatever shape the layout
+ * leaves it and the field of view stays round and centred either way.
+ */
+.stage--eyepiece {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: min(56vh, 460px);
+}
+
+.stage--drum {
+  flex: 1;
+  min-height: 200px;
+}
+
+/* The drum fills its column; the wheel stays centred at its natural width. */
+.stage--drum > power-drum {
+  flex: 1;
+}
+
+.stage--wheel {
+  height: 128px;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ *
+ * LCD readout
+ * ------------------------------------------------------------------ */
+
+.readout {
+  display: grid;
+  gap: 0.15rem;
+  font-family: var(--font-mono);
+  background: var(--lcd-bg);
+  color: var(--lcd-ink);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.85);
+}
+
+.readout__item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.readout b {
+  font-weight: 400;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--lcd-dim);
+}
+
+.readout__value {
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------------ *
+ * Focus meter
+ * ------------------------------------------------------------------ */
+
+.focus-meter {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.focus-meter__row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+.focus-meter__track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-edge);
+  overflow: hidden;
+}
+
+.focus-meter__fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--warn), var(--accent));
+  transition: width 120ms linear;
+}
+
+/* ------------------------------------------------------------------ *
+ * Console
+ * ------------------------------------------------------------------ */
+
+.console__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.console__summary {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.console__note {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.console-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.select {
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-line);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.answer-form__prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------ *
+ * Rx fields
+ * ------------------------------------------------------------------ */
+
+.rx-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.rx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.rx-field.is-muted {
+  opacity: 0.45;
+}
+
+.rx-field__label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.rx-field__unit {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.rx-field__control {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  align-items: stretch;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.rx-input {
+  border: 0;
+  background: transparent;
+  text-align: center;
+  padding: 0.45rem 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+
+.rx-input::-webkit-outer-spin-button,
+.rx-input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.rx-input[type='number'] {
+  appearance: textfield;
+}
+
+.rx-step {
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.rx-step:hover {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ *
+ * Buttons
+ * ------------------------------------------------------------------ */
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  flex: 1 1 auto;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel-raised);
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.9rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, transform 80ms ease;
+}
+
+.button:hover {
+  background: var(--panel);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button--primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-ink);
+}
+
+.button--primary:hover {
+  filter: brightness(1.08);
+  background: var(--accent);
+}
+
+.button--quiet {
+  flex: 0 0 auto;
+  background: transparent;
+  border-color: var(--panel-line);
+  color: var(--ink-faint);
+  font-weight: 500;
+  font-size: 0.76rem;
+  padding: 0.4rem 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.switch input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ *
+ * Feedback
+ * ------------------------------------------------------------------ */
+
+.feedback {
+  border: 1px solid var(--panel-line);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  padding: 0.7rem 0.85rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.feedback[data-result='correct'] {
+  border-left-color: var(--ok);
+}
+
+.feedback[data-result='incorrect'] {
+  border-left-color: var(--danger);
+}
+
+.feedback__verdict {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.feedback[data-result='correct'] .feedback__verdict {
+  color: var(--ok);
+}
+
+.feedback[data-result='incorrect'] .feedback__verdict {
+  color: var(--danger);
+}
+
+.feedback__answer {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.feedback__note {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.feedback__breakdown {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+}
+
+.feedback__line {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.5rem;
+  color: var(--ink-soft);
+}
+
+.feedback__line b {
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  align-self: center;
+}
+
+.feedback__line.is-ok span {
+  color: var(--ok);
+}
+
+.feedback__line.is-bad span {
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------------------ *
+ * Stats, coach, history
+ * ------------------------------------------------------------------ */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 0.4rem;
+}
+
+.stat {
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+}
+
+.stat dt {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.stat dd {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.coach {
+  font-size: 0.78rem;
+  color: var(--warn);
+}
+
+.history {
+  border-top: 1px solid var(--panel-line);
+  padding-top: 0.6rem;
+}
+
+.history > summary {
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.history-list {
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  padding: 0.2rem 0.1rem;
+  border-bottom: 1px solid var(--panel-line);
+}
+
+.history-item__mark {
+  font-family: var(--font);
+  font-weight: 700;
+}
+
+.history-item.is-correct .history-item__mark {
+  color: var(--ok);
+}
+
+.history-item.is-wrong .history-item__mark {
+  color: var(--danger);
+}
+
+.history-item__time {
+  color: var(--ink-faint);
+}
+
+.history-empty {
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+  margin-top: 0.5rem;
+}
+
+.lens-facts {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.7rem;
+}
+
+.lens-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lens-fact dt {
+  color: var(--ink-faint);
+}
+
+.lens-fact dd {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ *
+ * Footer
+ * ------------------------------------------------------------------ */
+
+.footer {
+  max-width: 1440px;
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------------ *
+ * Help dialog
+ * ------------------------------------------------------------------ */
+
+.help {
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 0;
+  max-width: min(640px, 92vw);
+  box-shadow: var(--shadow);
+}
+
+.help::backdrop {
+  background: rgba(4, 8, 16, 0.66);
+  backdrop-filter: blur(2px);
+}
+
+.help__inner {
+  padding: 1.1rem 1.25rem 1.35rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.help__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.help__head h2 {
+  font-size: 1.05rem;
+}
+
+.help h3 {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.help__steps {
+  display: grid;
+  gap: 0.5rem;
+  padding-left: 1.1rem;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.help__steps b {
+  color: var(--ink);
+}
+
+.help p {
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+
+.help__keys {
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  width: 100%;
+}
+
+.help__keys th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 0.3rem 0.75rem 0.3rem 0;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.help__keys td {
+  padding: 0.3rem 0;
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-edge);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ *
+ * Responsive
+ * ------------------------------------------------------------------ */
+
+/*
+ * On a desktop the whole instrument has to be in view at once - you cannot
+ * focus the mires with the axis wheel scrolled off the bottom of the screen.
+ * So the bench is pinned to the viewport and only the console scrolls.
+ */
+@media (min-width: 1101px) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .stage--eyepiece {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .workbench {
+    grid-template-columns: minmax(0, 1fr) 84px;
+    /* Rows size to their content once the bench is no longer pinned to the
+       viewport, otherwise the 1fr row inflates the eyepiece panel. */
+    grid-template-rows: repeat(3, auto);
+    grid-template-areas:
+      'eyepiece drum'
+      'wheel    wheel'
+      'console  console';
+  }
+
+  .panel--console {
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* The drum column is too narrow to set this hint in - eight wrapped lines
+     of it were setting the height of the whole row. It lives in the help. */
+  .panel--drum .panel__hint {
+    display: none;
+  }
+
+  .eyepiece {
+    flex-direction: column;
+  }
+
+  .eyepiece__rail {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .eyepiece__rail .panel__label,
+  .eyepiece__note {
+    display: none;
+  }
+
+  .eyepiece__rail .focus-meter {
+    flex: 1;
+  }
+
+  .readout {
+    grid-auto-flow: column;
+    gap: 1.2rem;
+  }
+
+  /* Stacked, the field is limited by the panel width, so pinning the stage
+     square stops half a screen of empty black under it. */
+  .stage--eyepiece {
+    flex: none;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  body {
+    padding: 0.6rem;
+  }
+
+  .topbar {
+    justify-content: center;
+  }
+
+  .brand__text p {
+    display: none;
+  }
+
+  .workbench {
+    grid-template-columns: minmax(0, 1fr) 68px;
+  }
+
+  .stage--wheel {
+    height: 104px;
+  }
+
+  .rx-fields {
+    gap: 0.35rem;
+  }
+
+  .rx-field__control {
+    grid-template-columns: 26px minmax(0, 1fr) 26px;
+  }
+
+  .footer {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focimeter Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    /* ---------- Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    img, svg { display: block; max-width: 100%; }
+
+    /* ---------- Instrument chrome ---------- */
+    :root {
+        --body-dark: #314A9F;
+        --body-mid: #3a3e45;
+        --panel-edge: #1c1e22;
+        --label: #d4d9e2;
+        --lcd-green: greenyellow;
+    }
+    body {
+        font-family: "Be Vietnam Pro", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background: var(--body-dark);
+        color: var(--label);
+        padding: 1rem;
+    }
+    header {
+        max-width: 1200px;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    header h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    header .readout {
+        font-family: "Consolas", "Menlo", monospace;
+        background: #0d0f0a;
+        border: 1px solid #000;
+        border-radius: 4px;
+        padding: 0.35rem 0.9rem;
+        color: var(--lcd-green);
+        font-size: 1rem;
+        display: flex;
+        gap: 1.5rem;
+        box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
+    }
+    header .readout span b { font-weight: 400; color: #7a8c4a; margin-right: 0.4rem; }
+
+    main {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(320px, 560px) 110px minmax(320px, 1fr);
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "reticle power rx"
+            "axis    axis  rx";
+        gap: 1rem;
+        align-items: stretch;
+    }
+    section {
+        background: var(--body-mid);
+        border: 1px solid var(--panel-edge);
+        border-radius: 8px;
+        padding: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    section .section-label {
+        display: block;
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #9ba1ab;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    #reticle { grid-area: reticle; }
+    #power   { grid-area: power; display: flex; flex-direction: column; }
+    #axis    { grid-area: axis; }
+    #rx      { grid-area: rx; display: flex; flex-direction: column; gap: 1rem; }
+
+    #reticle .stage { aspect-ratio: 1 / 1; max-height: 70vh; margin: 0 auto; }
+    #power .stage { flex: 1; min-height: 0; display: flex; justify-content: center; }
+    #axis .stage { height: 130px; display: flex; justify-content: center; overflow: hidden; }
+    #reticle .stage eye-reticle, #power .stage power-drum, #axis .stage axis-wheel { height: 100%; }
+
+    #rx rx-script {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    rx-script[hidden] { display: none !important; }
+    .controls {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .toggle {
+        font-family: inherit;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        padding: 0.45rem 0.9rem;
+        border: 1px solid var(--panel-edge);
+        border-radius: 4px;
+        background: #2a2d33;
+        color: var(--label);
+        cursor: pointer;
+    }
+    .toggle:hover { background: #22252a; }
+    .toggle:focus-visible { outline: 2px solid var(--lcd-green); outline-offset: 2px; }
+
+    .instructions {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: #c3c8d1;
+    }
+    .instructions h2 {
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #9ba1ab;
+        margin-bottom: 0.4rem;
+    }
+    .instructions ol { padding-left: 1.2rem; }
+    .instructions li { margin-bottom: 0.35rem; }
+    .instructions kbd {
+        font-family: inherit;
+        background: #22252a;
+        border: 1px solid #16181c;
+        border-radius: 3px;
+        padding: 0 0.3rem;
+    }
+
+    @media (max-width: 900px) {
+        main {
+            grid-template-columns: 1fr 90px;
+            grid-template-areas:
+                "reticle power"
+                "axis    axis"
+                "rx      rx";
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition: none !important; }
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>Focimeter Simulator</h1>
+    <div class="readout" aria-live="polite">
+        <span><b>PWR</b><span id="readout-power">+0.00</span></span>
+        <span><b>AXIS</b><span id="readout-axis">0</span></span>
+    </div>
+</header>
+<main>
+    <section id="reticle">
+        <span class="section-label">Eyepiece</span>
+        <div class="stage">
+            <eye-reticle rxsph="-4" rxcyl="-1" rxaxis="45" power="0" axis="0"></eye-reticle>
+        </div>
+    </section>
+    <section id="power">
+        <span class="section-label">Power</span>
+        <div class="stage">
+            <power-drum power="0"></power-drum>
+        </div>
+    </section>
+    <section id="axis">
+        <span class="section-label">Axis Wheel</span>
+        <div class="stage">
+            <axis-wheel axis="0"></axis-wheel>
+        </div>
+    </section>
+    <section id="rx">
+        <span class="section-label">Prescription</span>
+        <div class="controls">
+            <button id="rx-toggle" class="toggle">Show prescription</button>
+            <button id="rx-random" class="toggle">Randomise prescription</button>
+            <button id="cyl-toggle" class="toggle">Switch to plus cyl</button>
+        </div>
+        <rx-script hidden></rx-script>
+        <div class="instructions">
+            <h2>How to use</h2>
+            <ol>
+                <li><strong>Power drum:</strong> click the upper half to add plus, lower half to add minus. Outer zones move in <kbd>1.00 D</kbd> steps, inner zones in <kbd>0.25 D</kbd> steps.</li>
+                <li><strong>Axis wheel:</strong> click left or right of centre to rotate. Outer zones move <kbd>10&deg;</kbd>, middle zones <kbd>5&deg;</kbd>, inner zones <kbd>1&deg;</kbd>.</li>
+                <li>Rotate the axis wheel until the mires can be focused crisply, then find the two drum powers that clear each line set.</li>
+                <li>In minus cyl format, the most positive reading is the sphere, the difference between the two readings is the cylinder, and the axis is read from the wheel.</li>
+                <li>Use <strong>Randomise prescription</strong> for a new lens, or show the prescription and edit the values directly. The cyl format button transposes between minus and plus cyl.</li>
+            </ol>
+        </div>
+    </section>
+</main>
+
+<!-- ====================== Web Components ====================== -->
+<script>
+/* ---------------- power-drum ---------------- */
+class PowerDrum extends HTMLElement {
+    constructor(){
+        super();
+        this.attachShadow({mode: 'open'});
+        this.NS = "http://www.w3.org/2000/svg";
+        this.position = 0;
+        this.render();
+        this.click();
+    }
+
+    connectedCallback(){
+        this.addEventListener('click', this.click.bind(this));
+    }
+
+    disconnectedCallback(){
+        this.removeEventListener('click', this.click);
+    }
+
+    adoptedCallback(){}
+
+    static get observedAttributes() {
+        return ['power'];
+    }
+
+    get power(){
+        return this.getAttribute('power') || 0;
+    }
+
+    set power(num){
+        this.setAttribute('power', +num);
+        this.position = +num * 20;
+    }
+
+    attributeChangedCallback(name, oldVal, newVal) {
+        if (oldVal !== newVal) {
+            this[name] = newVal;
+            this.click();
+        }
+    }
+
+    click(e){
+        //place the power of the power drum in the details and pass it up to the application level
+        if (e) {
+            /*
+                Zones measured against the rendered svg (not the host element,
+                whose box can be wider than the visible drum):
+                percent of half-height, 0 = top edge, 2 = bottom edge
+                p < 0.5 = +1.00
+                0.5 <= p < 1 = +0.25
+                1 <= p < 1.5 = -0.25
+                p >= 1.5 = -1.00
+            */
+            const rect = this.shadowRoot.querySelector('svg').getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            let percent = Math.min(Math.max(y/(rect.height/2), 0), 2);
+            let offset = 0;
+            offset = (percent < 0.5)? 20:offset;
+            offset = (percent >= 0.5 && percent < 1)? 5:offset;
+            offset = (percent >=1 && percent < 1.5)? -5:offset;
+            offset = (percent >=1.5 && percent <=2)? -20:offset;
+
+            this.position += offset;
+            this.position = (this.position > 400)? 400:this.position;
+            this.position = (this.position < -400)? -400:this.position;
+        } else {
+            this.position = this.power*20;
+        }
+
+        const scale = this.shadowRoot.querySelector('#scale');
+        scale.setAttributeNS(null, 'transform', `translate(0 ${this.position})`);
+        this.setAttribute('power', this.position/20);
+
+        const customEvent = new CustomEvent('power-drum', {
+            bubbles: true,
+            composed: true,
+            detail: { position: this.position, power: this.position/20 }
+        });
+        this.dispatchEvent(customEvent);
+    }
+
+    createScale(){
+        const scale = this.shadowRoot.querySelector('#scale');
+        const text = document.createElementNS(this.NS, 'text');
+        text.setAttributeNS(null, 'x', 10);
+        const line = document.createElementNS(this.NS, 'line');
+        line.setAttributeNS(null, 'x1', -25);
+        line.setAttributeNS(null, 'x2', -5);
+        for (let i = 0; i <= 20; i+=0.25) {
+            let positiveLine = line.cloneNode(true);
+            positiveLine.setAttributeNS(null, 'stroke', 'black');
+            positiveLine.setAttributeNS(null, 'y1', -i*20);
+            positiveLine.setAttributeNS(null, 'y2', -i*20);
+            scale.append(positiveLine);
+            //check for whole diopters
+            if (!(i%1)) {
+                positiveLine.setAttributeNS(null, 'x2', 0);
+                let positiveText = text.cloneNode(true);
+                positiveText.textContent = i;
+                positiveText.setAttributeNS(null, 'fill', 'black');
+                positiveText.setAttributeNS(null, 'y', -i*20);
+                scale.append(positiveText);
+            }
+
+            let minusLine = positiveLine.cloneNode(true);
+            minusLine.setAttributeNS(null, 'stroke', 'red');
+            minusLine.setAttributeNS(null, 'y1', i*20);
+            minusLine.setAttributeNS(null, 'y2', i*20);
+            scale.append(minusLine);
+            //check for whole diopters
+            if (!(i%1)) {
+                let minusText = text.cloneNode(true);
+                minusText.textContent = i;
+                minusText.setAttributeNS(null, 'fill', 'red');
+                minusText.setAttributeNS(null, 'y', i*20);
+                scale.append(minusText);
+            }
+        }
+    }
+
+    render(){
+        /*
+            Power drum needs to render a scale for power from -20.00 to +20.00 in 0.25D increments,
+            have 4 diopters total in view at any given time, start at 0
+        */
+        this.shadowRoot.innerHTML = `
+<style>
+    .container {
+        position: relative;
+        background-color: white;
+    }
+    .container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 33%;
+        pointer-events: none;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), transparent);
+    }
+    .container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 33%;
+        pointer-events: none;
+        background-image: linear-gradient(to top, rgba(0, 0, 0, 1), transparent);
+    }
+    :host {
+        height: 100%;
+        cursor: pointer;
+    }
+    *, *::before, *::after {
+        user-select: none;
+        transition: all 250ms ease-in-out;
+    }
+    svg {
+        border-right: 1px solid black;
+        border-left: 1px solid black;
+        height: 100%;
+    }
+    line { stroke-width: 1; }
+    text {
+        dominant-baseline: middle;
+        text-anchor: middle;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+</style>
+<div class="container">
+    <svg xmlns="${this.NS}" viewBox="-25 -200 50 400" preserveAspectRatio="xMidYMin slice">
+            <g id="scale"></g>
+            <g>
+                <path d="M -25 -15 L -10 0 L -25 15 Z" fill="black" />
+            </g>
+    </svg>
+</div>
+        `;
+        this.createScale();
+    }
+}
+customElements.define('power-drum', PowerDrum);
+
+/* ---------------- axis-wheel ---------------- */
+class AxisWheel extends HTMLElement {
+    constructor(){
+        super();
+        this.attachShadow({mode: 'open'});
+        this.NS = "http://www.w3.org/2000/svg";
+        this.render();
+        this.click();
+    }
+
+    connectedCallback(){
+        this.addEventListener('click', this.click.bind(this));
+    }
+
+    disconnectedCallback(){
+        this.removeEventListener('click', this.click);
+    }
+
+    adoptedCallback(){}
+
+    static get observedAttributes() {
+        return ['axis'];
+    }
+
+    get axis(){
+        return +this.getAttribute('axis') || 0;
+    }
+
+    set axis(num){
+        this.setAttribute('axis', (180+num)%180);
+    }
+
+    attributeChangedCallback(name, oldVal, newVal) {
+        if (oldVal !== newVal) {
+            this[name] = newVal;
+            this.click();
+        }
+    }
+
+    click(e){
+        if (e) {
+            /*
+                Zones measured against the rendered svg (not the host element,
+                whose box can be wider than the visible wheel — that was why
+                edge clicks never reached the 10-degree zone):
+                percent of half-width, 0 = far left of the wheel, 2 = far right
+                p < 1/3        = +10  (far outer zone)
+                1/3 <= p < 2/3 = +5   (mid zone)
+                2/3 <= p < 1   = +1   (inner zone)
+                1 <= p < 4/3   = -1   (inner zone)
+                4/3 <= p < 5/3 = -5   (mid zone)
+                p >= 5/3       = -10  (far outer zone)
+            */
+            const rect = this.shadowRoot.querySelector('svg').getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            let percent = Math.min(Math.max(x/(rect.width/2), 0), 2);
+            let offset = 0;
+            offset = (percent < 1/3)? 10:offset;
+            offset = (percent >= 1/3 && percent < 2/3)? 5:offset;
+            offset = (percent >= 2/3 && percent < 1)? 1:offset;
+            offset = (percent >= 1 && percent < 4/3)? -1:offset;
+            offset = (percent >= 4/3 && percent < 5/3)? -5:offset;
+            offset = (percent >= 5/3 && percent <= 2)? -10:offset;
+
+            this.axis += offset;
+        }
+
+        const scale = this.shadowRoot.querySelector('#scale');
+        scale.setAttributeNS(null, 'transform', `rotate(${this.axis})`);
+
+        const customEvent = new CustomEvent('axis-wheel', {
+            bubbles: true,
+            composed: true,
+            detail: { axis: this.axis }
+        });
+        this.dispatchEvent(customEvent);
+    }
+
+    createScale(){
+        const scale = this.shadowRoot.querySelector('#scale');
+        const text = document.createElementNS(this.NS, 'text');
+        text.setAttributeNS(null, 'x', 0);
+        text.setAttributeNS(null, 'y', 0);
+        const line = document.createElementNS(this.NS, 'line');
+        line.setAttributeNS(null, 'x1', -80);
+        line.setAttributeNS(null, 'x2', -85);
+        line.setAttributeNS(null, 'stroke', 'black');
+        for (let i = 0; i <= 360; i+=1) {
+            let tick = line.cloneNode(true);
+            tick.setAttributeNS(null, 'transform', `rotate(${i}, 0, 0)`);
+            if (!(i%5)) {
+                tick.setAttributeNS(null, 'x2', (i%10)? -87:-90);
+                if (!(i%10)) {
+                    let axis = text.cloneNode(true);
+                    axis.textContent = (i+90)%180;
+                    axis.setAttributeNS(null, 'transform', `rotate(${-i}, 0, 0) translate(93, 0) rotate(90, 0, 0)`);
+                    scale.append(axis);
+                }
+            }
+            scale.append(tick);
+        }
+    }
+
+    render(){
+        /*
+            Axis wheel needs to rotate 360 degrees, but only show 180 degrees repeated
+        */
+        this.shadowRoot.innerHTML = `
+<style>
+    :host {
+        height: 100%;
+        cursor: pointer;
+    }
+    *, *::before, *::after {
+        user-select: none;
+    }
+    svg {
+        border-right: 1px solid black;
+        border-left: 1px solid black;
+        height: 100%;
+    }
+    line { stroke-width: 1; }
+    text {
+        dominant-baseline: middle;
+        text-anchor: middle;
+        font-size: 6px;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+</style>
+<div class="container">
+    <svg xmlns="${this.NS}" viewBox="-110 -110 220 40" preserveAspectRatio="xMidYMin slice">
+            <circle cx="0" cy="0" r="100" fill="#999" stroke="transparent"></circle>
+            <circle cx="0" cy="0" r="80" fill="#666" stroke="transparent"></circle>
+            <g id="scale"></g>
+            <g>
+                <!-- Magnifying lens and the pointer for the axis -->
+                <line x1="0" x2="0" y1="0" y2="-85" stroke="black"></line>
+                <circle cx="0" cy="-85" r="20" fill="rgba(0, 0, 255, 0.1)" stroke="#333" stroke-width="5"></circle>
+            </g>
+    </svg>
+</div>
+        `;
+        this.createScale();
+    }
+}
+customElements.define('axis-wheel', AxisWheel);
+
+/* ---------------- rx-script ---------------- */
+class RxScript extends HTMLElement {
+    constructor(){
+        super();
+        this.attachShadow({mode: 'open'});
+        this.plusCyl = false; // current cylinder format
+        this.render();
+    }
+
+    connectedCallback(){
+        this.addEventListener('click', this.click.bind(this));
+        this.addEventListener('input', this.click.bind(this));
+    }
+
+    disconnectedCallback(){
+        this.removeEventListener('click', this.click);
+        this.removeEventListener('input', this.click);
+    }
+
+    adoptedCallback(){}
+
+    // signed power format: 2.5 -> "+2.50", -4 -> "-4.00"
+    fmt(v){ return (v >= 0 ? '+' : '') + v.toFixed(2); }
+
+    read(){
+        const row = this.shadowRoot.querySelector('tbody tr');
+        return {
+            sph: parseFloat(row.querySelector('.sph').textContent) || 0,
+            cyl: parseFloat(row.querySelector('.cyl').textContent) || 0,
+            axis: parseInt(row.querySelector('.axis').textContent, 10) || 0
+        };
+    }
+
+    write(rx){
+        const row = this.shadowRoot.querySelector('tbody tr');
+        row.querySelector('.sph').textContent = this.fmt(rx.sph);
+        row.querySelector('.cyl').textContent = this.fmt(rx.cyl);
+        row.querySelector('.axis').textContent = String(rx.axis);
+        this.click();
+    }
+
+    // standard transposition: sph + cyl, flip cyl sign, axis +/- 90 (kept in 1-180)
+    transposed(rx){
+        if (rx.cyl === 0) return { ...rx };
+        return {
+            sph: rx.sph + rx.cyl,
+            cyl: -rx.cyl,
+            axis: ((rx.axis + 90 - 1) % 180) + 1
+        };
+    }
+
+    toggleCylFormat(){
+        this.plusCyl = !this.plusCyl;
+        this.write(this.transposed(this.read()));
+        return this.plusCyl;
+    }
+
+    randomizeScript(){
+        //sph +/-15, cyl always generated in minus form, axis 1-180
+        let sign = ()=>{ return (Math.random() > 0.5)? 1:-1; }
+        let rx = {
+            sph: Math.round(4*Math.random()*15*sign())/4,
+            cyl: Math.round(4*Math.random()*-5)/4,
+            axis: Math.floor(Math.random()*180)+1
+        };
+        if (this.plusCyl) rx = this.transposed(rx);
+        this.write(rx);
+    }
+
+    click(e){
+        try {
+            const rx = this.read();
+            const customEvent = new CustomEvent('rx-script', {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    sph: rx.sph,
+                    cyl: rx.cyl,
+                    axis: rx.axis
+                }
+            });
+            this.dispatchEvent(customEvent);
+        } catch (err) { console.log(err); }
+    }
+
+    render(){
+        this.shadowRoot.innerHTML = `
+<style>
+    *, *::before, *::after {
+        user-select: none;
+        transition: all 250ms ease-in-out;
+    }
+    [contenteditable] { user-select: text; }
+    .container {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        background-color: white;
+        color: black;
+        font-family: "Be Vietnam Pro", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    td { text-align: center; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 0.25rem 0.5rem; }
+    [contenteditable]:focus { outline: 2px solid greenyellow; }
+</style>
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sph</th>
+                <th>Cyl</th>
+                <th>Axis</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="sph" contenteditable>-4.00</td>
+                <td class="cyl" contenteditable>-1.00</td>
+                <td class="axis" contenteditable>45</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+        `;
+    }
+}
+customElements.define('rx-script', RxScript);
+
+/* ---------------- eye-reticle ---------------- */
+/*
+    Defocus model: in a real focimeter an out-of-focus mire line doesn't just go
+    fuzzy in place — it spreads into a wide, soft band of light whose width grows
+    with the dioptric difference, while staying fairly bright. So for each meridian
+    we scale THREE things from the diopter difference:
+      1. stroke-width  — the band of light gets physically wider
+      2. blur          — the band's edges soften
+      3. opacity       — brightness falls off gently (energy spread over the band)
+    In focus (difference below a tiny epsilon) the filter is removed entirely so
+    lines render pixel-crisp at full brightness.
+    Opacity and blur are applied on a wrapper group per meridian so each line set
+    composites as one shape.
+*/
+class EyeReticle extends HTMLElement {
+    constructor(){
+        super();
+        this.NS = "http://www.w3.org/2000/svg";
+        this.attachShadow({mode: 'open'});
+        this.render();
+    }
+
+    connectedCallback(){}
+    disconnectedCallback(){}
+    adoptedCallback(){}
+
+    // parseFloat so 0.25 D steps survive
+    get rxsph(){ return parseFloat(this.getAttribute('rxsph')) || 0; }
+    get rxcyl(){ return parseFloat(this.getAttribute('rxcyl')) || 0; }
+    get rxaxis(){ return parseFloat(this.getAttribute('rxaxis')) || 0; }
+    get power(){ return parseFloat(this.getAttribute('power')) || 0; }
+    get axis(){ return parseFloat(this.getAttribute('axis')) || 0; }
+
+    set rxsph(val){ this.setAttribute('rxsph', +val); }
+    set rxcyl(val){ this.setAttribute('rxcyl', +val); }
+    set rxaxis(val){ this.setAttribute('rxaxis', +val) }
+    set power(val){ this.setAttribute('power', +val); }
+    set axis(val){ this.setAttribute('axis', +val); }
+
+    static get observedAttributes() {
+        return ["rxsph", "rxcyl", "rxaxis", "power", "axis"];
+    }
+
+    attributeChangedCallback(name, oldval, newval) {
+        if (oldval === newval) return;
+        this[name] = newval;
+        this.update();
+    }
+
+    update(){
+        this.render();
+    }
+
+    blur(){
+        /*
+            Axis-dependent focus model (minus/plus cyl correct).
+            delta = misalignment between the lens cyl axis and the wheel.
+            Lines lying ALONG a meridian are focused by the lens power in the
+            meridian PERPENDICULAR to them, so with the wheel on the listed
+            axis: the single lines (lying on the axis) clear at sph + cyl —
+            the least positive power — and the triple lines (lying 90 degrees
+            to the axis) clear at sph, the most positive power.
+              single (primary) lines: sph + cyl * cos^2(delta)
+              triple (secondary) lines: sph + cyl * sin^2(delta)
+            On top of that, a misalignment residual blurs BOTH sets — zero
+            when aligned at 0 or 90, maximum at 45 — so a misaligned cyl lens
+            can never be focused crisp, which is what drives the student to
+            rotate the wheel until the lines clear.
+        */
+        const rad = (this.rxaxis - this.axis) * Math.PI / 180;
+        const s2 = Math.sin(rad) ** 2;
+        const c2 = Math.cos(rad) ** 2;
+        const primaryTarget = this.rxsph + this.rxcyl * c2;
+        const secondaryTarget = this.rxsph + this.rxcyl * s2;
+        /*
+            Misalignment residual, tuned for findability rather than strict
+            optics: a floor term (0.75) keeps the axis findable even on small
+            cylinders, and the 0.75 exponent on sin(2*delta) makes blur ease
+            off progressively over the last several degrees as the wheel
+            approaches the axis, clearing fully on it. Zero for spheres.
+        */
+        const residual = (this.rxcyl === 0)? 0 :
+            (0.75 + Math.abs(this.rxcyl)) * Math.pow(Math.abs(Math.sin(2 * rad)), 0.75);
+        return {
+            primary: Math.abs(this.power - primaryTarget) + residual,
+            secondary: Math.abs(this.power - secondaryTarget) + residual
+        };
+    }
+
+    // Map a dioptric difference to band width / softness / brightness.
+    // The 0.7 exponent steepens the response near focus: even a 0.25 D error
+    // is visibly soft, and exact focus snaps in crisp by comparison.
+    // Below the epsilon the filter is dropped so the lines are fully crisp
+    // (the trig in blur() leaves ~1e-16 residue at exact 90-degree alignment).
+    defocus(diff){
+        const d = Math.min(Math.abs(diff), 10); // cap so extreme errors stay visible
+        const crisp = d < 0.001;
+        const response = Math.pow(d, 0.7);
+        return {
+            width: 2 + response * 6,                                          // line spreads into a band
+            filter: crisp? 'none' : `blur(${(response * 3).toFixed(2)}px)`,   // edges soften
+            opacity: crisp? 1 : Math.max(0.35, 0.9 - response * 0.08)         // gentle brightness falloff
+        };
+    }
+
+    createScale(){
+        const protractor = this.shadowRoot.querySelector('#protractor');
+        const hash = document.createElementNS(this.NS, 'line');
+        hash.setAttributeNS(null, 'x1', 65);
+        hash.setAttributeNS(null, 'x2', 68);
+        hash.setAttributeNS(null, 'y1', 0);
+        hash.setAttributeNS(null, 'y2', 0);
+        hash.setAttributeNS(null, 'stroke', 'black');
+        const text = document.createElementNS(this.NS, 'text');
+        text.setAttributeNS(null, 'fill', 'black');
+        text.setAttributeNS(null, 'stroke', 'transparent');
+        for (let i=0; i<=180; i+=5) {
+            let h = hash.cloneNode(true);
+            //large hash mark
+            if (!(i%10)) {
+                h.setAttributeNS(null, 'x2', 70);
+                let t = text.cloneNode(true);
+                t.textContent = i;
+                t.setAttributeNS(null, 'transform', `rotate(${-i}, 0, 0) translate(75 0) rotate(${i}, 0, 0)`);
+                protractor.append(t);
+            }
+            h.setAttributeNS(null, 'transform', `rotate(-${i}, 0, 0)`);
+            protractor.append(h);
+        }
+    }
+
+    render(){
+        const blur = this.blur();
+        const p = this.defocus(blur.primary);
+        const s = this.defocus(blur.secondary);
+
+        this.shadowRoot.innerHTML = `
+<style>
+    :host {
+        height: 100%;
+    }
+    svg {
+        height: 100%;
+    }
+    line { stroke-width: 1; }
+    text {
+        dominant-baseline: middle;
+        text-anchor: middle;
+        font-size: 6px;
+        font-family: sans-serif;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    #mires {
+        transform: rotate(${-1*this.axis}deg);
+    }
+    .primary-set {
+        opacity: ${p.opacity};
+        filter: ${p.filter};
+    }
+    .primary-set path { stroke-width: ${p.width}; }
+    .secondary-set {
+        opacity: ${s.opacity};
+        filter: ${s.filter};
+    }
+    .secondary-set path { stroke-width: ${s.width}; }
+</style>
+<div class="container">
+    <svg xmlns="${this.NS}" viewBox="-120 -120 240 240" preserveAspectRatio="xMidYMin slice">
+        <g id="background">
+            <circle cx="0" cy="0" r="120" fill="#333"></circle>
+        </g>
+        <!-- FOCUS THE MIRES WITH WIDTH + BLUR + OPACITY HERE -->
+        <g id="mires">
+            <g class="primary-set">
+                <path id="primary" d="M -120 4 L 120 4 M -120 0 L 120 0 M -120 -4 L 120 -4" stroke="greenyellow" stroke-width="2"></path>
+            </g>
+            <g class="secondary-set">
+                <path id="secondary" d="M 20 -120 L 20 120 M 0 -120 L 0 120 M -20 -120 L -20 120" stroke="greenyellow" stroke-width="2"></path>
+            </g>
+            <circle cx="0" cy="0" r="135" stroke="black" fill="transparent" stroke-width="30"></circle>
+        </g>
+        <g id="protractor">
+            <path d="M -65 0 A 65 65 0 1 1 65 0" stroke="black" fill="transparent"></path>
+        </g>
+        <g id="reticle" transform="rotate(0)">
+            <circle cx="0" cy="0" r="20" stroke="black" fill="transparent"></circle>
+            <circle cx="0" cy="0" r="40" stroke="black" fill="transparent"></circle>
+            <circle cx="0" cy="0" r="60" stroke="black" fill="transparent"></circle>
+            <line x1="80" x2="80" y1="2.5" y2="-2.5" stroke="black"></line>
+            <line x1="-80" x2="-80" y1="2.5" y2="-2.5" stroke="black"></line>
+            <line x1="100" x2="100" y1="2.5" y2="-2.5" stroke="black"></line>
+            <line x1="-100" x2="-100" y1="2.5" y2="-2.5" stroke="black"></line>
+            <path d="M -110 0 L -10 0 M 10 0 L 110 0" stroke="black"></path>
+            <path d="M 0 -15 L 0 -7 M 0 7 L 0 15" stroke="black"></path>
+            <text x="-25" y="6" fill="black">1</text>
+            <text x="25" y="6" fill="black">1</text>
+            <text x="-45" y="6" fill="black">2</text>
+            <text x="45" y="6" fill="black">2</text>
+            <text x="-65" y="6" fill="black">3</text>
+            <text x="65" y="6" fill="black">3</text>
+            <text x="-85" y="6" fill="black">4</text>
+            <text x="85" y="6" fill="black">4</text>
+        </g>
+    </svg>
+</div>
+        `;
+        this.createScale();
+    }
+}
+customElements.define('eye-reticle', EyeReticle);
+</script>
+
+<!-- ====================== Main wiring ====================== -->
+<script>
+    const reticle = document.querySelector('eye-reticle');
+    const readoutPower = document.querySelector('#readout-power');
+    const readoutAxis = document.querySelector('#readout-axis');
+
+    const fmtPower = (p)=>{ return (p >= 0 ? '+' : '') + p.toFixed(2); };
+    const fmtAxis = (a)=>{ return String(a); };
+
+    document.addEventListener('power-drum', (e)=>{
+        let power = e.detail.power;
+        reticle.setAttribute('power', power);
+        readoutPower.textContent = fmtPower(power);
+    });
+
+    document.addEventListener('axis-wheel', (e)=>{
+        let axis = e.detail.axis;
+        reticle.setAttribute('axis', axis);
+        readoutAxis.textContent = fmtAxis(axis);
+    });
+
+    document.addEventListener('rx-script', (e)=>{
+        reticle.setAttribute('rxsph', e.detail.sph);
+        reticle.setAttribute('rxcyl', e.detail.cyl);
+        reticle.setAttribute('rxaxis', e.detail.axis);
+    });
+
+    // Prescription controls
+    const rxScript = document.querySelector('rx-script');
+
+    const rxToggle = document.querySelector('#rx-toggle');
+    rxToggle.addEventListener('click', ()=>{
+        const hidden = rxScript.toggleAttribute('hidden');
+        rxToggle.textContent = hidden ? 'Show prescription' : 'Hide prescription';
+    });
+
+    document.querySelector('#rx-random').addEventListener('click', ()=>{
+        rxScript.randomizeScript();
+    });
+
+    const cylToggle = document.querySelector('#cyl-toggle');
+    cylToggle.addEventListener('click', ()=>{
+        const plus = rxScript.toggleCylFormat();
+        cylToggle.textContent = plus ? 'Switch to minus cyl' : 'Switch to plus cyl';
+    });
+
+    // Sync the reticle with the Rx on load
+    window.addEventListener('DOMContentLoaded', ()=>{
+        rxScript.click();
+    });
+</script>
+</body>
+</html>
