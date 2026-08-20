@@ -3,6 +3,7 @@ import {
   axisDifference,
   defocus,
   formatAxis,
+  formatAxisDisplay,
   formatDioptres,
   formatRx,
   generateLens,
@@ -28,16 +29,23 @@ describe('formatting', () => {
     expect(formatDioptres(-0)).toBe('0.00');
   });
 
-  it('pads axes to three digits', () => {
-    expect(formatAxis(5)).toBe('005');
-    expect(formatAxis(90)).toBe('090');
+  it('writes axes without padding, the way they are said', () => {
+    expect(formatAxis(5)).toBe('5');
+    expect(formatAxis(90)).toBe('90');
     expect(formatAxis(180)).toBe('180');
     expect(formatAxis(0)).toBe('180');
   });
 
+  it('pads axes to three digits only for the instrument display', () => {
+    expect(formatAxisDisplay(5)).toBe('005');
+    expect(formatAxisDisplay(90)).toBe('090');
+    expect(formatAxisDisplay(180)).toBe('180');
+    expect(formatAxisDisplay(0)).toBe('180');
+  });
+
   it('writes a sphere as DS and a toric in full', () => {
     expect(formatRx({ sph: -2, cyl: 0, axis: 180 })).toBe('-2.00 DS');
-    expect(formatRx({ sph: -4, cyl: -1, axis: 45 })).toBe('-4.00 / -1.00 x 045');
+    expect(formatRx({ sph: -4, cyl: -1, axis: 45 })).toBe('-4.00 / -1.00 x 45');
   });
 });
 

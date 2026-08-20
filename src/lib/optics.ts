@@ -44,8 +44,17 @@ export function formatDioptres(value: number): string {
   return (rounded > 0 ? '+' : '-') + Math.abs(rounded).toFixed(2);
 }
 
-/** Format an axis as a script does: three digits, `005`, `090`, `180`. */
+/** Format an axis as it is written and spoken: `5`, `90`, `180`. */
 export function formatAxis(axis: number): string {
+  return String(normaliseAxis(axis));
+}
+
+/**
+ * Format an axis the way the instrument's own display shows it - three
+ * digits, `005`, `090`, `180` - which is a property of the readout, not of
+ * how an axis is written down.
+ */
+export function formatAxisDisplay(axis: number): string {
   return String(normaliseAxis(axis)).padStart(3, '0');
 }
 
@@ -97,7 +106,7 @@ export function inFormat(rx: Rx, format: CylFormat): Rx {
   return format === 'plus' ? toPlusCyl(rx) : toMinusCyl(rx);
 }
 
-/** Render a prescription as a single line, e.g. `-4.00 / -1.00 x 045`. */
+/** Render a prescription as a single line, e.g. `-4.00 / -1.00 x 45`. */
 export function formatRx(rx: Rx): string {
   const sph = formatDioptres(rx.sph);
   if (rx.cyl === 0) return `${sph} DS`;

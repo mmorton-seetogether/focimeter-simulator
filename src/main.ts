@@ -12,6 +12,7 @@ import type { RxFields } from './components/rx-fields.ts';
 import {
   DIOPTRE_STEP,
   formatAxis,
+  formatAxisDisplay,
   formatDioptres,
   formatRx,
   generateLens,
@@ -137,7 +138,7 @@ function setLens(next: Rx): void {
 
 function updateReadout(): void {
   readoutPower.textContent = formatDioptres(drum.power);
-  readoutAxis.textContent = formatAxis(wheel.axis);
+  readoutAxis.textContent = formatAxisDisplay(wheel.axis);
 }
 
 function updateFocusMeter(): void {
@@ -324,7 +325,7 @@ function renderFeedback(grade: GradeResult | null, seconds: number): void {
   if (!grade.correct) {
     notes.push(hint(grade));
   }
-  notes.push(`${seconds.toFixed(1)} s on this lens.`);
+  notes.push(`${seconds.toFixed(0)} s on this lens.`);
 
   feedback.dataset.result = grade.correct ? 'correct' : 'incorrect';
   feedback.innerHTML = `
