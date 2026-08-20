@@ -182,7 +182,16 @@ export class EyeReticle extends HTMLElement {
           font: 500 6px system-ui, sans-serif;
           fill: #9aa6b8;
         }
-        .barrel { fill: #05070a; }
+        /*
+         * The rim of the field stop. Stroke only - never give this a CSS
+         * fill property, which beats a fill=none attribute on the element
+         * and paints a solid disc straight over the field of view.
+         */
+        .bezel {
+          fill: none;
+          stroke: #05070a;
+          stroke-width: 5;
+        }
       </style>
       <svg viewBox="-120 -120 240 240" preserveAspectRatio="xMidYMid meet">
         <defs>
@@ -235,8 +244,8 @@ export class EyeReticle extends HTMLElement {
           <text class="grat-number" x="85" y="6">4</text>
         </g>
 
-        <!-- Barrel of the eyepiece, masking everything outside the field stop. -->
-        <circle class="barrel" cx="0" cy="0" r="126" fill="none" stroke="#05070a" stroke-width="32"></circle>
+        <!-- Rim of the field stop. -->
+        <circle class="bezel" cx="0" cy="0" r="110"></circle>
       </svg>
     `;
     this.#primaryGroup = root.querySelector('#primary-set');
