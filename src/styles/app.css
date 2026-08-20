@@ -111,6 +111,16 @@ svg {
   max-width: 100%;
 }
 
+/*
+ * The UA stylesheet hides [hidden] with `display: none`, but any author
+ * `display` rule outranks it - which silently un-hid the inactive console
+ * view, the focus meter and the empty feedback card all at once. Anything
+ * carrying the attribute stays hidden, whatever else it is styled as.
+ */
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 select {
@@ -606,6 +616,16 @@ select {
 .rx-step:hover {
   background: var(--panel);
   color: var(--ink);
+}
+
+/* The answer form locks once a lens has been marked - it should look locked. */
+.rx-fields[disabled] .rx-field__control {
+  opacity: 0.6;
+}
+
+.rx-input:disabled,
+.rx-step:disabled {
+  cursor: not-allowed;
 }
 
 /* ------------------------------------------------------------------ *

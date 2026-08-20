@@ -105,7 +105,12 @@ export class EyeReticle extends HTMLElement {
     }
     // The mires turn with the wheel, so the target the student is focusing
     // always lies square to the graticule they are reading it against.
-    this.#mires?.style.setProperty('transform', `rotate(${-this.axis}deg)`);
+    //
+    // An SVG transform attribute rather than the CSS property: CSS rotation
+    // resolves its origin against transform-box, which put the mires in the
+    // corner of the field instead of across its centre. The attribute always
+    // rotates about the user-space origin, which is the centre here.
+    this.#mires?.setAttribute('transform', `rotate(${-this.axis})`);
 
     const focused = primary.crisp && secondary.crisp;
     this.setAttribute(
@@ -155,7 +160,6 @@ export class EyeReticle extends HTMLElement {
       <style>
         :host { display: block; height: 100%; }
         svg { height: 100%; width: 100%; display: block; }
-        #mires { transform-origin: center; }
         .mire-set {
           transition: opacity 160ms linear, filter 160ms linear;
         }

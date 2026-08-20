@@ -98,9 +98,24 @@ npm run dev
 | `npm run test:watch` | Run the tests in watch mode |
 | `npm run typecheck` | Typecheck without building |
 | `npm run icons` | Redraw the PWA icons and social card |
+| `npm run screenshot -- <url> <out.png> [js]` | Capture the running app with headless Chrome, for visual checks |
 
 The icons are generated, not committed — `scripts/generate-icons.mjs` rasterises them with a small
 PNG encoder built on Node's own zlib, and runs automatically before `dev` and `build`.
+
+`scripts/screenshot.mjs` drives an installed Chrome over the DevTools protocol with no extra
+packages, and takes an optional snippet of JS to set the page up before capturing — useful for
+eyeballing a particular lens, since the mires are the one part of this app that unit tests cannot
+check:
+
+```bash
+npm run screenshot -- http://localhost:5173 focused.png "
+  document.querySelector('#tab-explore').click();
+  document.querySelector('#wheel').axis = 45;
+  document.querySelector('#drum').power = -4;
+  new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+"
+```
 
 ---
 
@@ -155,6 +170,7 @@ src/
   styles/app.css         Design tokens, layout, and both themes
 scripts/
   generate-icons.mjs     Dependency-free PNG icon and social card generator
+  screenshot.mjs         Headless-Chrome capture for visual checks
 docs/
   original-prototype.html  The single-file version this grew from
 ```
